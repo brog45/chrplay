@@ -3,7 +3,13 @@
 
 %--------------
 
-:- chr_constraint place/2.
+% Specifying modes speeds up this example.
+:- chr_constraint place(+, +).
+
+% % Adding types actually slows it down, though.
+% :- chr_type furniture ---> sofa ; desk ; tv.
+% :- chr_type wall ---> n ; s ; e ; w.
+% :- chr_constraint place(+furniture, +wall).
 
 find_placement :-
     member(Sofa, [n, s, e, w]),

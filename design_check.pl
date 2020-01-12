@@ -1,7 +1,8 @@
 :- use_module(library(chr)).
-:- set_prolog_flag(toplevel_mode, recursive).
+% :- set_prolog_flag(toplevel_mode, recursive).
 
-:- chr_constraint design_check/0, wire/2, pin_not_checked/1.
+% :- chr_constraint design_check/0, wire/2, pin_not_checked/1.
+:- chr_constraint design_check/0, wire(+,+), pin_not_checked(+).
 
 %--------------
 
