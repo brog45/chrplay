@@ -11,11 +11,14 @@ add_days(date(Y,M,D), Days, date(Y2,M2,D2)) :-
     stamp_date_time(TS, DT, 0),
     date_time_value(date, DT, date(Y2,M2,D2)).
 
+:- chr_constraint balance(+), currdt(+), weekly(+,+,+), nextdt, untildt(+).
+
 advance(0) :- !.
 advance(Days) :- Days > 0, !, nextdt, Days1 is Days - 1, advance(Days1).
 
-:- chr_constraint balance(+), currdt(+), weekly(+,+,+), nextdt.
-
+nextdt, currdt(Date) <=> 
+    add_days(Date, 1, NewDate), 
+    currdt(NewDate).
 currdt(Date) \ balance(Balance) <=> 
     Balance =< 0 
     | format('Date: ~w  Balance: ~w~n', [Date, Balance]), 
@@ -25,6 +28,5 @@ currdt(Date) \ balance(Balance), weekly(Date, Amount, Description) <=>
     Balance1 is Balance - Amount,
     balance(Balance1),
     weekly(NewDate, Amount, Description).
-nextdt, currdt(Date) <=> 
-    add_days(Date, 1, NewDate), 
-    currdt(NewDate).
+untildt(Date1), currdt(Date2) ==> Date1 \= Date2 | nextdt.
+untildt(Date), currdt(Date) <=> true.
