@@ -25,6 +25,7 @@ add_months(date(Y,M,D), Months, NextDate) :-
         date_time_value(date, DT1, NextDate)
     ).
 
+% date_next(+,+,-)
 date_next(day, Date, NextDate) :- add_days(Date, 1, NextDate).
 date_next(week, Date, NextDate) :- add_days(Date, 7, NextDate).
 date_next(month, Date, NextDate) :- add_months(Date, 1, NextDate).
