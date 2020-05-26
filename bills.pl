@@ -1,9 +1,6 @@
-:- use_module(library(chr)).
+:- module(bills,[on/3,every/4,balance/1,untildt/1,currdt/1]).
 
-get_date(Date) :-
-    get_time(Timestamp), 
-    stamp_date_time(Timestamp, DateTime, local), 
-    date_time_value(date, DateTime, Date).
+:- use_module(library(chr)).
 
 add_days(date(Y,M,D), Days, date(Y2,M2,D2)) :-
     D1 is D + Days,
@@ -26,6 +23,8 @@ add_months(date(Y,M,D), Months, NextDate) :-
     ).
 
 % date_next(+,+,-)
+date_next(_, Date, _) :- \+ ground(Date), !, fail.
+date_next(_, _, NextDate) :- ground(NextDate), !, fail.
 date_next(day, Date, NextDate) :- add_days(Date, 1, NextDate).
 date_next(week, Date, NextDate) :- add_days(Date, 7, NextDate).
 date_next(month, Date, NextDate) :- add_months(Date, 1, NextDate).
@@ -38,8 +37,8 @@ print_ledger(date(Y,M,D), Description, Amount, Balance) :-
         [M, D, Y, Description, Amount, Balance]).
 
 :- chr_type interval ---> day ; week ; month; quarter; year.
-
-:- chr_constraint balance(+), currdt(+), every(+interval,+,+,+), on(+,+,+), nextdt, untildt(+), overdrawn(+,+).
+:- chr_type date ---> date(int,int,int).
+:- chr_constraint balance(+int), currdt(+date), every(+interval,+date,+int,+), on(+date,+int,+), nextdt, untildt(+date), overdrawn(+date,+int).
 
 nextdt, currdt(Date) <=> 
     date_next(day, Date, NewDate), 
@@ -48,7 +47,7 @@ nextdt, currdt(Date) <=>
 currdt(Date), balance(Balance) ==> Balance =< 0 | overdrawn(Date, Balance).
 
 overdrawn(Date, Balance1), overdrawn(Date, Balance2) <=> 
-    Balance is Balance1 + Balance2, 
+    Balance is min(Balance1, Balance2), 
     overdrawn(Date, Balance).
 
 % skip past transactions
@@ -80,22 +79,3 @@ untildt(Date), currdt(Date) \ balance(Balance) <=>
     % print final balance
     date(Y,M,D) = Date,
     format('Finishing on ~w/~w/~w with balance ~:d~n', [M, D, Y, Balance]).
-
-go :-
-    % these are made up numbers
-    balance(650),
-    % income
-    every(month, date(2020,1,1), 1300, salary),
-    every(month, date(2020,1,15), 1300, salary),
-    % expenses
-    every(week, date(2020,1,1), -50, groceries),
-    every(month, date(2020,1,1), -350, rent),
-    every(month, date(2020,1,1), -50, gas),
-    every(month, date(2020,1,1), -150, electric),
-    every(month, date(2020,1,28), -250, 'auto service (monthly avg)'),
-    on(date(2020,2,15), -4000, tuition),
-    on(date(2020,4,15), -800, taxes),
-    % start date
-    currdt(date(2020,1,1)), 
-    % end date
-    untildt(date(2020,4,15)).
